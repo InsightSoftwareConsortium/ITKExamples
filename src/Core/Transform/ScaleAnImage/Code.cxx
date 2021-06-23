@@ -27,16 +27,19 @@ static void
 CreateImage(ImageType::Pointer image);
 
 int
-main(int, char *[])
+main(int argc, char * argv[])
 {
   ImageType::Pointer image = ImageType::New();
-  CreateImage(image);
 
-  using WriterType = itk::ImageFileWriter<ImageType>;
-  WriterType::Pointer inputWriter = WriterType::New();
-  inputWriter->SetFileName("input.png");
-  inputWriter->SetInput(image);
-  inputWriter->Update();
+  // Usage: ScaleAnImage.exe [input.png] [output.png]
+  if (argc < 3)
+  {
+    CreateImage(image);
+  }
+  else
+  {
+    image = itk::ReadImage<ImageType>(argv[1]);
+  }
 
   // using TransformType = itk::ScaleTransform<float, 2>; // If you want to use float here, you must use:
   // using ResampleImageFilterType = itk::ResampleImageFilter<ImageType, ImageType, float>; later.
@@ -60,10 +63,10 @@ main(int, char *[])
   resampleFilter->SetSize(image->GetLargestPossibleRegion().GetSize());
   resampleFilter->Update();
 
-  WriterType::Pointer outputWriter = WriterType::New();
-  outputWriter->SetFileName("output.png");
-  outputWriter->SetInput(resampleFilter->GetOutput());
-  outputWriter->Update();
+  if (argc >= 3)
+  {
+    itk::WriteImage(resampleFilter->GetOutput(), argv[2]);
+  }
 
   return EXIT_SUCCESS;
 }
