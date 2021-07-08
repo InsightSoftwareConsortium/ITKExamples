@@ -18,6 +18,7 @@
 #include "itkImage.h"
 #include "itkBinaryMorphologicalOpeningImageFilter.h"
 #include "itkImageFileReader.h"
+#include "itkImageFileWriter.h"
 #include "itkBinaryBallStructuringElement.h"
 #include "itkSubtractImageFilter.h"
 
@@ -37,27 +38,28 @@ int
 main(int argc, char * argv[])
 {
   ImageType::Pointer image;
+  unsigned int       radius = 5;
+  std::string        outputFilename = "Output.png";
 
   if (argc == 1)
   {
     image = ImageType::New();
     CreateImage(image);
   }
-  else
+  else if (argc < 4)
   {
     using ReaderType = itk::ImageFileReader<ImageType>;
     ReaderType::Pointer reader = ReaderType::New();
     reader->SetFileName(argv[1]);
     reader->Update();
-    image = reader->GetOutput();
-  }
 
-  unsigned int radius = 5;
-  if (argc == 3)
-  {
     std::stringstream ss(argv[2]);
     ss >> radius;
+
+    image = reader->GetOutput();
+    outputFilename = argv[3];
   }
+
   std::cout << "Radius: " << radius << std::endl;
   using StructuringElementType = itk::BinaryBallStructuringElement<ImageType::PixelType, ImageType::ImageDimension>;
   StructuringElementType structuringElement;
@@ -91,6 +93,9 @@ main(int argc, char * argv[])
   viewer.AddImage(diff->GetOutput(), true, desc3.str());
   viewer.Visualize();
 #endif
+
+  itk::WriteImage(openingFilter->GetOutput(), outputFilename);
+
   return EXIT_SUCCESS;
 }
 

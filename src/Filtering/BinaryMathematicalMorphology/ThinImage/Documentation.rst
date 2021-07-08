@@ -20,11 +20,11 @@ Results
 
   input.png
 
-.. figure:: output.png
+.. figure:: OutputBaseline.png
   :scale: 70%
-  :alt: output.png
+  :alt: OutputBaseline.png
 
-  output.png
+  OutputBaseline.png
 
 Code
 ----

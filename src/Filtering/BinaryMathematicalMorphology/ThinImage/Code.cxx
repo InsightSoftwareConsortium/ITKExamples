@@ -24,8 +24,6 @@
 using ImageType = itk::Image<unsigned char, 2>;
 
 static void
-WriteImage(const ImageType::Pointer image, const std::string & fileName);
-static void
 CreateImage(ImageType::Pointer image);
 
 int
@@ -44,7 +42,7 @@ main(int argc, char * argv[])
   else
   {
     CreateImage(image);
-    WriteImage(image, "input.png");
+    itk::WriteImage(image, "input.png");
   }
 
   using BinaryThinningImageFilterType = itk::BinaryThinningImageFilter<ImageType, ImageType>;
@@ -60,7 +58,7 @@ main(int argc, char * argv[])
   rescaler->SetOutputMaximum(255);
   rescaler->Update();
 
-  WriteImage(rescaler->GetOutput(), "output.png");
+  itk::WriteImage(rescaler->GetOutput(), "Output.png");
 
   return EXIT_SUCCESS;
 }
@@ -92,14 +90,4 @@ CreateImage(ImageType::Pointer image)
       image->SetPixel(index, 255);
     }
   }
-}
-
-void
-WriteImage(const ImageType::Pointer image, const std::string & fileName)
-{
-  using WriterType = itk::ImageFileWriter<ImageType>;
-  WriterType::Pointer writer = WriterType::New();
-  writer->SetFileName(fileName);
-  writer->SetInput(image);
-  writer->Update();
 }

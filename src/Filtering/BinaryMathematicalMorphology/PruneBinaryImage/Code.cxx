@@ -25,6 +25,11 @@
 #  include "QuickView.h"
 #endif
 
+namespace
+{
+using ImageType = itk::Image<unsigned char, 2>;
+}
+
 template <typename TImage>
 void
 CreateImage(TImage * const image);
@@ -37,22 +42,29 @@ main(int argc, char * argv[])
 
   using ImageType = itk::Image<unsigned char, 2>;
   ImageType::Pointer image;
+  std::string        outputFilename = "Output.png";
+  unsigned int       iteration = 1;
 
-  unsigned int iteration = 1;
-
-  if (argc < 3)
+  if (argc == 1)
   {
     image = ImageType::New();
     CreateImage(image.GetPointer());
   }
-  else
+  else if (argc < 4)
   {
     using ReaderType = itk::ImageFileReader<ImageType>;
     ReaderType::Pointer reader = ReaderType::New();
     reader->SetFileName(argv[1]);
+    reader->Update();
     image = reader->GetOutput();
+
     std::stringstream ssIteration(argv[2]);
+    ssIteration >> iteration;
+
+    outputFilename = argv[3];
   }
+
+  std::cout << "Iterations: " << iteration << std::endl;
 
   using BinaryPruningImageFilterType = itk::BinaryPruningImageFilter<ImageType, ImageType>;
   BinaryPruningImageFilterType::Pointer pruneFilter = BinaryPruningImageFilterType::New();
@@ -66,6 +78,9 @@ main(int argc, char * argv[])
   viewer.AddImage(pruneFilter->GetOutput());
   viewer.Visualize();
 #endif
+
+  itk::WriteImage(pruneFilter->GetOutput(), outputFilename);
+
   return EXIT_SUCCESS;
 }
 
